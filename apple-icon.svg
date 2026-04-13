@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" role="img" aria-labelledby="title desc">
+  <title>Mission Control Apple touch icon</title>
+  <desc>Rounded square OpenClaw mission control icon for Apple devices.</desc>
+  <defs>
+    <linearGradient id="bg" x1="18" y1="14" x2="166" y2="168" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="1" stop-color="#111827"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="42" y1="36" x2="138" y2="138" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#67e8f9"/>
+      <stop offset="1" stop-color="#22c55e"/>
+    </linearGradient>
+  </defs>
+  <rect x="10" y="10" width="160" height="160" rx="40" fill="url(#bg)"/>
+  <path d="M52 67c7-15 22-25 40-25 12 0 22 4 31 11 5-10 14-17 27-20-5 13-5 24 0 35 11 4 21 12 27 22-13-3-25-1-35 6-6 24-26 40-54 40-31 0-56-25-56-56 0-5 1-10 2-13 6 2 12 2 18 0z"
+        fill="none" stroke="url(#accent)" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="90" cy="90" r="26" fill="#0b1220" stroke="#e2e8f0" stroke-width="7"/>
+  <circle cx="90" cy="90" r="10" fill="#67e8f9"/>
+</svg>
