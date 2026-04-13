@@ -68,7 +68,7 @@ const WEEKLY_TASKS = [
       { id: 'weekly_teshin', text: "Teshin (Steel Path): Check Teshin's Steel Essence shop (Umbra Forma every 8 weeks).", icon: '🗡️', location: 'Any Relay', npc: 'Teshin', prereq: 'Steel Path unlocked' },
       { id: 'weekly_bird3', text: 'Bird 3: Buy the weekly Archon Shard for 30k Cavia Standing.', icon: '🐦', location: 'Sanctum Anatomica, Deimos', npc: 'Bird 3', prereq: 'Rank 5 Cavia' },
       { id: 'weekly_nightcap', text: 'Nightcap: Trade Fergolyte for Kuva and Ayatan Sculpture.', icon: '🍄', location: 'Fortuna, Venus', npc: 'Nightcap', prereq: 'The New War' },
-      { id: 'weekly_relist_rivens', text: 'Re-list Rivens: Relist any unsold Rivens on the market.', icon: '📋' },
+      { id: 'weekly_relist_rivens', text: 'Re-list Rivens: Relist any unsold Rivens on the market.', icon: '📋', prereq: 'The War Within' },
     ],
   },
 ];
@@ -513,7 +513,8 @@ export default function WarframeChecklistClient() {
           {!collapsed.unlocks && (
             <div className="wfSectionContent">
               <p className="wfUnlockIntro">
-                Toggle which quest milestones and unlocks you&apos;ve completed. Tasks requiring locked content will be hidden.
+                Toggle which quest milestones and unlocks you&apos;ve completed. Tasks requiring locked content will be hidden.<br />
+                <span className="wfUnlockHint">Hold <kbd>Shift</kbd> + hover to reveal spoiler text on locked tasks.</span>
               </p>
               <div className="wfUnlockActions">
                 <input
