@@ -3088,6 +3088,147 @@ html {
   opacity: 0.6;
 }
 
+/* Share Modal */
+.wfActionBtnAccent {
+  background: #2563eb !important;
+  border-color: #3b82f6 !important;
+  color: #fff !important;
+}
+.wfActionBtnAccent:hover {
+  background: #1d4ed8 !important;
+}
+.wfActionBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.wfModalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+.wfModal {
+  background: #1a2332;
+  border: 1px solid #2d3f55;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+.wfModalWide {
+  max-width: 700px;
+}
+.wfModalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.wfModalHeader h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--text);
+}
+.wfModalClose {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+.wfModalClose:hover {
+  color: var(--text);
+}
+.wfModalDesc {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin: 0 0 16px;
+  line-height: 1.5;
+}
+.wfModalCodeBox {
+  background: #0f1724;
+  border: 1px solid #2d3f55;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+  word-break: break-all;
+  max-height: 120px;
+  overflow-y: auto;
+}
+.wfModalCodeBox code {
+  color: #93c5fd;
+  font-size: 0.8rem;
+  font-family: monospace;
+  user-select: all;
+}
+.wfModalTextarea {
+  width: 100%;
+  background: #0f1724;
+  border: 1px solid #2d3f55;
+  border-radius: 8px;
+  padding: 12px;
+  color: var(--text);
+  font-family: monospace;
+  font-size: 0.8rem;
+  resize: vertical;
+  margin-bottom: 16px;
+  box-sizing: border-box;
+}
+.wfModalTextarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+.wfModalActions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.wfPreviewStats {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.wfPreviewStat {
+  background: #0f1724;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: #93c5fd;
+}
+.wfPreviewGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 16px;
+  padding: 4px;
+}
+.wfPreviewItem {
+  background: #0f1724;
+  border: 1px solid #1f2937;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.wfPreviewPrime {
+  color: #fbbf24;
+}
+.wfPreviewItemName {
+  color: var(--text);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .wfSummaryBar {

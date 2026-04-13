@@ -1597,6 +1597,51 @@ function ItemCard({ item, owned, onToggle }) {
   );
 }
 
+
+// Bitmask encoding for shareable codes
+function encodeOwned(frameOwned, weaponOwned) {
+  const bits = ALL_ITEMS.map(item => {
+  const frameCategories = new Set(['warframe', 'archwing', 'necramech']);
+    const owned = frameCategories.has(item.category) ? frameOwned : weaponOwned;
+    return owned[item.id] ? 1 : 0;
+  });
+  // Pack bits into bytes
+  const bytes = [];
+  for (let i = 0; i < bits.length; i += 8) {
+    let byte = 0;
+    for (let b = 0; b < 8; b++) {
+      if (i + b < bits.length && bits[i + b]) byte |= (1 << b);
+    }
+    bytes.push(byte);
+  }
+  // Base64 encode
+  const bin = String.fromCharCode(...bytes);
+  return btoa(bin);
+}
+
+function decodeOwned(code) {
+  try {
+    const bin = atob(code);
+    const bytes = [];
+    for (let i = 0; i < bin.length; i++) bytes.push(bin.charCodeAt(i));
+    const frameO = {};
+    const weaponO = {};
+    for (let i = 0; i < ALL_ITEMS.length; i++) {
+      const byteIdx = Math.floor(i / 8);
+      const bitIdx = i % 8;
+      const isOwned = byteIdx < bytes.length && (bytes[byteIdx] & (1 << bitIdx));
+      const item = ALL_ITEMS[i];
+      if (isOwned) {
+        if (frameCategories.has(item.category)) frameO[item.id] = true;
+        else weaponO[item.id] = true;
+      }
+    }
+    return { frameOwned: frameO, weaponOwned: weaponO };
+  } catch {
+    return null;
+  }
+}
+
 export default function WarframeCollectionsClient() {
   const [frameOwned, setFrameOwned] = useState(null);
   const [weaponOwned, setWeaponOwned] = useState(null);
@@ -1604,6 +1649,11 @@ export default function WarframeCollectionsClient() {
   const [weaponSubtab, setWeaponSubtab] = useState('all');
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
+  const [shareModal, setShareModal] = useState(null); // null | 'export' | 'import' | 'preview'
+  const [importCode, setImportCode] = useState('');
+  const [previewOwned, setPreviewOwned] = useState(null);
+  const [exportCode, setExportCode] = useState('');
+  const [copySuccess, setCopySuccess] = useState(false);
 
   useEffect(() => {
     setFrameOwned(loadStorage(FRAME_STORAGE_KEY, DEFAULT_FRAME_OWNED));
@@ -1670,6 +1720,65 @@ export default function WarframeCollectionsClient() {
     else { saveStorage(WEAPON_STORAGE_KEY, {}); setWeaponOwned({}); }
   };
 
+  const handleExport = () => {
+    const code = encodeOwned(frameOwned, weaponOwned);
+    setExportCode(code);
+    setCopySuccess(false);
+    setShareModal('export');
+  };
+
+  const handleCopy = () => {
+    const doCopy = (text) => {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          setCopySuccess(true);
+          setTimeout(() => setCopySuccess(false), 2000);
+        });
+      } else {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        setCopySuccess(true);
+        setTimeout(() => setCopySuccess(false), 2000);
+      }
+    };
+    doCopy(exportCode);
+  };
+
+  const handleImport = () => {
+    const decoded = decodeOwned(importCode.trim());
+    if (!decoded) { alert('Invalid share code.'); return; }
+    saveStorage(FRAME_STORAGE_KEY, decoded.frameOwned);
+    saveStorage(WEAPON_STORAGE_KEY, decoded.weaponOwned);
+    setFrameOwned(decoded.frameOwned);
+    setWeaponOwned(decoded.weaponOwned);
+    setShareModal(null);
+    setImportCode('');
+  };
+
+  const handlePreview = () => {
+    const decoded = decodeOwned(importCode.trim());
+    if (!decoded) { alert('Invalid share code.'); return; }
+    setPreviewOwned(decoded);
+    setShareModal('preview');
+  };
+
+  const handleImportPreview = () => {
+    if (!previewOwned) return;
+    saveStorage(FRAME_STORAGE_KEY, previewOwned.frameOwned);
+    saveStorage(WEAPON_STORAGE_KEY, previewOwned.weaponOwned);
+    setFrameOwned(previewOwned.frameOwned);
+    setWeaponOwned(previewOwned.weaponOwned);
+    setShareModal(null);
+    setPreviewOwned(null);
+    setImportCode('');
+  };
+
   return (
     <div className="wfCollections">
       <div className="wfColTopTabs">
@@ -1705,6 +1814,8 @@ export default function WarframeCollectionsClient() {
         <div className="wfSummaryActions">
           <button className="wfActionBtn" onClick={markAll}>Mark All</button>
           <button className="wfActionBtn" onClick={clearAll}>Clear All</button>
+          <button className="wfActionBtn wfActionBtnAccent" onClick={handleExport}>Share</button>
+          <button className="wfActionBtn" onClick={() => { setImportCode(''); setShareModal('import'); }}>Import</button>
         </div>
       </div>
 
@@ -1750,6 +1861,80 @@ export default function WarframeCollectionsClient() {
           <ItemCard key={item.id} item={item} owned={owned} onToggle={toggleFn} />
         ))}
       </div>
+
+      {shareModal === 'export' && (
+        <div className="wfModalOverlay" onClick={() => setShareModal(null)}>
+          <div className="wfModal" onClick={e => e.stopPropagation()}>
+            <div className="wfModalHeader">
+              <h3>Share Your Collection</h3>
+              <button className="wfModalClose" onClick={() => setShareModal(null)}>✕</button>
+            </div>
+            <p className="wfModalDesc">Copy this code and share it. Others can import it to see or copy your collection.</p>
+            <div className="wfModalCodeBox">
+              <code>{exportCode}</code>
+            </div>
+            <div className="wfModalActions">
+              <button className="wfActionBtn wfActionBtnAccent" onClick={handleCopy}>
+                {copySuccess ? '✓ Copied!' : 'Copy Code'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {shareModal === 'import' && (
+        <div className="wfModalOverlay" onClick={() => setShareModal(null)}>
+          <div className="wfModal" onClick={e => e.stopPropagation()}>
+            <div className="wfModalHeader">
+              <h3>Import Collection</h3>
+              <button className="wfModalClose" onClick={() => setShareModal(null)}>✕</button>
+            </div>
+            <p className="wfModalDesc">Paste a share code below. You can preview it first or import directly.</p>
+            <textarea
+              className="wfModalTextarea"
+              placeholder="Paste share code here..."
+              value={importCode}
+              onChange={e => setImportCode(e.target.value)}
+              rows={3}
+            />
+            <div className="wfModalActions">
+              <button className="wfActionBtn" onClick={handlePreview} disabled={!importCode.trim()}>Preview</button>
+              <button className="wfActionBtn wfActionBtnAccent" onClick={handleImport} disabled={!importCode.trim()}>Import</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {shareModal === 'preview' && previewOwned && (
+        <div className="wfModalOverlay" onClick={() => { setShareModal(null); setPreviewOwned(null); }}>
+          <div className="wfModal wfModalWide" onClick={e => e.stopPropagation()}>
+            <div className="wfModalHeader">
+              <h3>Preview Collection</h3>
+              <button className="wfModalClose" onClick={() => { setShareModal(null); setPreviewOwned(null); }}>✕</button>
+            </div>
+            <div className="wfPreviewStats">
+              <span className="wfPreviewStat">{Object.keys(previewOwned.frameOwned).length} frames</span>
+              <span className="wfPreviewStat">{Object.keys(previewOwned.weaponOwned).length} weapons</span>
+              <span className="wfPreviewStat">{Math.round((Object.keys(previewOwned.frameOwned).length + Object.keys(previewOwned.weaponOwned).length) / ALL_ITEMS.length * 100)}% complete</span>
+            </div>
+            <div className="wfPreviewGrid">
+              {ALL_ITEMS.filter(item => {
+                const owned = item.category ? previewOwned.weaponOwned : previewOwned.frameOwned;
+                return owned[item.id];
+              }).map(item => (
+                <div key={item.id} className="wfPreviewItem">
+                  <span className="wfPreviewItemName">{item.name}</span>
+                  {item.prime && <span className="wfPreviewPrime">★</span>}
+                </div>
+              ))}
+            </div>
+            <div className="wfModalActions">
+              <button className="wfActionBtn" onClick={() => { setShareModal('import'); setPreviewOwned(null); }}>Back</button>
+              <button className="wfActionBtn wfActionBtnAccent" onClick={handleImportPreview}>Import This Collection</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="wfFooter">
         <p className="wfAttribution">
