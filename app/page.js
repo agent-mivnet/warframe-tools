@@ -1,12 +1,21 @@
-'use client';
+import Sidebar from '../components/Sidebar';
+import Shell from '../components/Shell';
+import PageHeader from '../components/PageHeader';
+import WarframeChecklistClient from './warframe-checklist/WarframeChecklistClient';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+export const metadata = { title: 'Warframe Task Checklist — Warframe Tools' };
 
-export default function Home() {
-  const router = useRouter();
-  useEffect(() => {
-    router.replace('/warframe-checklist');
-  }, [router]);
-  return null;
+export default function HomePage() {
+  return (
+    <Shell sidebar={<Sidebar />}>
+      <section className="content">
+        <PageHeader
+          eyebrow="Warframe"
+          title="Task Checklist"
+          description="Track your daily, weekly, and other Warframe tasks. Progress saves locally."
+        />
+        <WarframeChecklistClient />
+      </section>
+    </Shell>
+  );
 }
